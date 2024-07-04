@@ -12,6 +12,9 @@ import (
 )
 
 func isValidName(name string) bool {
+	if name[0] == '\x00' {
+		return false
+	}
 	return checkReg(name, `^[\w\-.][\w\-. ]*$`)
 }
 
@@ -25,28 +28,43 @@ func checkReg(str, pattern string) bool {
 func fixNames(mdl *Mdl) {
 	var str string
 
-	texPattern := `(_texture)(\d+)(.bmp)`
-	modelPattern := `(_body)(\d+)(_)(\d+)`
-	seqPattern := `(_seq)(\d+)`
+	const (
+		texSec = iota
+		modelSec
+		seqSec
+		boneSec
+	)
 
-	var usedNames [3]map[string]bool
-	for i := 0; i < len(usedNames); i++ {
+	patterns := [...]string{
+		`(_texture)(\d+)(.bmp)`,
+		`(_body)(\d+)(_)(\d+)`,
+		`(_seq)(\d+)`,
+		`(_bone)(\d+)`,
+	}
+
+	const typesNum = len(patterns)
+
+	var usedNames [typesNum]map[string]bool
+	for i := 0; i < typesNum; i++ {
 		usedNames[i] = make(map[string]bool)
 	}
-	isNameUsed := func(name string, t int) bool {
-		if _, ok := usedNames[t][name]; ok {
-			return true
-		}
-		return false
+
+	isNameUsed := func(name string, sec int) bool {
+		_, ok := usedNames[sec][name]
+		return ok
+	}
+
+	checkName := func(name string, sec int) bool {
+		return isValidName(name) && !checkReg(name, patterns[sec]) && !isNameUsed(name, sec)
 	}
 
 	for i, tex := range mdl.Textures {
 		str = tex.Name.String()
-		if !isValidName(str) || checkReg(str, texPattern) || isNameUsed(str, 0) {
+		if !checkName(str, texSec) {
 			str = fmt.Sprintf("_texture%d.bmp", i+1)
 			tex.Name.FromString(str)
-			usedNames[0][str] = true
 		}
+		usedNames[texSec][str] = true
 	}
 
 	for i, bp := range mdl.BodyParts {
@@ -57,21 +75,30 @@ func fixNames(mdl *Mdl) {
 		}
 		for j, m := range bp.Models {
 			str = m.Name.String()
-			if !isValidName(str) || checkReg(str, modelPattern) || isNameUsed(str, 1) {
+			if !checkName(str, modelSec) {
 				str = fmt.Sprintf("_body%d_%d", i+1, j+1)
 				m.Name.FromString(str)
-				usedNames[1][str] = true
 			}
+			usedNames[modelSec][str] = true
 		}
 	}
 
 	for i, seq := range mdl.Sequences {
 		str = seq.Label.String()
-		if !isValidName(str) || checkReg(str, seqPattern) || isNameUsed(str, 2) {
+		if !checkName(str, seqSec) {
 			str = fmt.Sprintf("_seq%d", i+1)
 			seq.Label.FromString(str)
-			usedNames[2][str] = true
 		}
+		usedNames[seqSec][str] = true
+	}
+
+	for i, bone := range mdl.Bones {
+		str = bone.Name.String()
+		if !checkName(str, boneSec) {
+			str = fmt.Sprintf("_bone%d", i+1)
+			bone.Name.FromString(str)
+		}
+		usedNames[boneSec][str] = true
 	}
 }
 
@@ -271,7 +298,7 @@ func main() {
 				printError(err)
 				return
 			}
-			
+
 			if err = saveTextures(texturesPath, mdl); err != nil {
 				printError(err)
 			}
