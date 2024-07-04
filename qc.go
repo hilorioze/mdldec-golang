@@ -230,32 +230,33 @@ func writeBodyGroupInfo(writer *bufio.Writer, mdl *Mdl) {
 func writeTextureRenderMode(writer *bufio.Writer, mdl *Mdl) {
 	for _, tex := range mdl.Textures {
 		if tex.Flags&StudioNfFlatshade > 0 {
-			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"flatshade\" \n", tex.Name))
+			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"flatshade\"\n", tex.Name))
 		}
 		if tex.Flags&StudioNfChrome > 0 {
-			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"chrome\" \n", tex.Name))
+			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"chrome\"\n", tex.Name))
 		}
 		if tex.Flags&StudioNfFullbright > 0 {
-			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"fullbright\" \n", tex.Name))
+			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"fullbright\"\n", tex.Name))
 		}
 		if tex.Flags&StudioNfNomips > 0 {
-			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"nomips\" \n", tex.Name))
+			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"nomips\"\n", tex.Name))
 		}
 		if tex.Flags&StudioNfNosmooth > 0 {
-			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"alpha\" \n", tex.Name))
-			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"nosmooth\" \n", tex.Name))
+			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"alpha\"\n", tex.Name))
+			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"nosmooth\"\n", tex.Name))
 		}
 		if tex.Flags&StudioNfAdditive > 0 {
-			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"additive\" \n", tex.Name))
+			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"additive\"\n", tex.Name))
 		}
-		if tex.Flags&StudioNfMasked > 0 {
-			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"masked\" \n", tex.Name))
-		}
-		if tex.Flags&(StudioNfMasked|StudioNfSolid) > 0 {
-			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"masked_solid\" \n", tex.Name))
+		if tex.Flags&(StudioNfMasked) > 0 {
+			if tex.Flags&(StudioNfSolid) > 0 {
+				writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"masked_solid\"\n", tex.Name))
+			} else {
+				writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"masked\"\n", tex.Name))
+			}
 		}
 		if tex.Flags&StudioNfTwoside > 0 {
-			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"twoside\" \n", tex.Name))
+			writer.WriteString(fmt.Sprintf("$texrendermode \"%s\" \"twoside\"\n", tex.Name))
 		}
 	}
 }
