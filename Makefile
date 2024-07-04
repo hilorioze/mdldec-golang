@@ -3,10 +3,10 @@ GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOGET=$(GOCMD) get
 BINARY_NAME=./bin/mdldec
-    
-build: 
+
+build:
 	$(GOBUILD) -o $(BINARY_NAME) -v
-clean: 
+clean:
 	$(GOCLEAN)
 	rm -f $(BINARY_NAME)
 deps:
