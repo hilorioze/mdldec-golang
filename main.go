@@ -153,6 +153,14 @@ func loadMDL(modelPath string) (*Mdl, error) {
 	mdl.Header = studioHdr
 	mdl.FilePath = modelPath
 
+	if studioHdr.HitBoxesNum > MaxHitboxes {
+		fmt.Printf("[WARNING] Invalid hitboxes number (%d) \n", studioHdr.HitBoxesNum)
+		studioHdr.HitBoxesNum = 0
+	} else if studioHdr.HitBoxesOff+studioHdr.HitBoxesNum*68 > studioHdr.Length {
+		fmt.Printf("[WARNING] Invalid hitboxes offset (%d) \n", studioHdr.HitBoxesOff)
+		studioHdr.HitBoxesNum = 0
+	}
+
 	if err = mdl.ReadBones(file); err != nil {
 		return nil, err
 	}
@@ -199,14 +207,6 @@ func loadMDL(modelPath string) (*Mdl, error) {
 				return nil, err
 			}
 		}
-	}
-
-	if studioHdr.HitBoxesNum > MaxHitboxes {
-		fmt.Printf("[WARNING] Invalid hitboxes number (%d) \n", studioHdr.HitBoxesNum)
-		studioHdr.HitBoxesNum = 0
-	} else if studioHdr.HitBoxesOff+studioHdr.HitBoxesNum*68 > studioHdr.Length {
-		fmt.Printf("[WARNING] Invalid hitboxes offset (%d) \n", studioHdr.HitBoxesOff)
-		studioHdr.HitBoxesNum = 0
 	}
 
 	fixNames(mdl)
