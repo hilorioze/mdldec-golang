@@ -293,13 +293,7 @@ func main() {
 
 		go func() {
 			defer wg.Done()
-			texturesPath := filepath.Join(destPath, "textures")
-			if err := createDirectory(texturesPath); err != nil {
-				printError(err)
-				return
-			}
-
-			if err = saveTextures(texturesPath, mdl); err != nil {
+			if err = saveTextures(destPath, mdl); err != nil {
 				printError(err)
 			}
 		}()

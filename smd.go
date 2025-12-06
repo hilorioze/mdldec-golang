@@ -491,13 +491,7 @@ func saveSMDs(destPath string, mdl *Mdl) error {
 		return err
 	}
 
-	sequencesPath := filepath.Join(destPath, "anims")
-	if err := createDirectory(sequencesPath); err != nil {
-		printError(err)
-		return err
-	}
-
-	if err := saveSequences(sequencesPath, mdl); err != nil {
+	if err := saveSequences(destPath, mdl); err != nil {
 		return err
 	}
 	return nil
