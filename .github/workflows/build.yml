@@ -3,8 +3,17 @@ name: Build
 on: [push, pull_request]
 
 jobs:
-  build-windows:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: windows
+            goos: windows
+            ext: .exe
+          - os: linux
+            goos: linux
+            ext: ""
 
     steps:
       - uses: actions/checkout@v5
@@ -14,9 +23,9 @@ jobs:
           go-version: stable
 
       - name: Build
-        run: GOOS=windows GOARCH=amd64 go build -o mdldec-golang.exe
+        run: GOOS=${{ matrix.goos }} GOARCH=amd64 go build -o mdldec-golang${{ matrix.ext }}
 
       - uses: actions/upload-artifact@v5
         with:
-          name: mdldec-golang-windows
-          path: mdldec-golang.exe
+          name: mdldec-golang-${{ matrix.os }}
+          path: mdldec-golang${{ matrix.ext }}
